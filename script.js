@@ -160,6 +160,7 @@ async function loadGameData() {
     const redNames = toCsv((inv.redClothing || []).map((r) => r.name));
     const fingerprintNames = toCsv((inv.fingerprintMatches || []).map((r) => r.name));
     const witnessSceneText = toCsv((inv.witnessScene || []).map((r) => `${r.time}: ${r.statement}`));
+    const evidenceMapText = toCsv((inv.evidenceMatches || []).map((r) => `${r.name} -> ${r.type}`));
 
     clues.push(
       {
@@ -185,6 +186,18 @@ async function loadGameData() {
         icon: "record_voice_over",
         title: "Witnesses Near Crime Scene",
         text: `${witnessSceneText}`
+      },
+      {
+        id: "q_scene",
+        icon: "location_on",
+        title: "Crime Scene Context",
+        text: `Primary scene: Jewelry Shop. Suspects seen there: ${sceneNames}`
+      },
+      {
+        id: "q_join",
+        icon: "dataset_linked",
+        title: "Evidence To Suspect Match",
+        text: `Matches: ${evidenceMapText}`
       }
     );
 
