@@ -71,7 +71,13 @@ function runQuery(sql) {
 }
 
 function normalizeSqlStatements(sql) {
-  return sql
+  const withoutBlockComments = sql.replace(/\/\*[\s\S]*?\*\//g, "");
+  const withoutLineComments = withoutBlockComments
+    .split("\n")
+    .map((line) => line.replace(/^\s*--.*$/, ""))
+    .join("\n");
+
+  return withoutLineComments
     .split(";")
     .map((statement) => statement.trim())
     .filter((statement) => {
@@ -80,10 +86,6 @@ function normalizeSqlStatements(sql) {
       }
 
       const upper = statement.toUpperCase();
-      if (upper.startsWith("--") || upper.startsWith("/*")) {
-        return false;
-      }
-
       return !upper.startsWith("CREATE DATABASE") && !upper.startsWith("USE ");
     });
 }
@@ -93,6 +95,23 @@ async function runStatements(sql) {
 
   for (const statement of statements) {
     await runQuery(statement);
+  }
+}
+
+async function ensureDatabaseReady() {
+  const schemaSql = fs.readFileSync(path.join(__dirname, "schema.sql"), "utf8");
+  const dataSql = fs.readFileSync(path.join(__dirname, "data.sql"), "utf8");
+
+  await runStatements(schemaSql);
+
+  const suspectCountRows = await runQuery("SELECT COUNT(*) AS count FROM suspects");
+  const suspectCount = Number(suspectCountRows?.[0]?.count || 0);
+
+  if (suspectCount === 0) {
+    await runStatements(dataSql);
+    console.log("Seeded database from data.sql ✅");
+  } else {
+    console.log("Database already seeded ✅");
   }
 }
 
@@ -211,6 +230,11 @@ app.get("/", (req, res) => {
 
 const PORT = Number(process.env.PORT || 3000);
 
-app.listen(PORT, () => {
+app.listen(PORT, async () => {
   console.log(`Server running on http://localhost:${PORT} 🚀`);
+  try {
+    await ensureDatabaseReady();
+  } catch (error) {
+    console.error("Startup DB verification failed:", error);
+  }
 });
