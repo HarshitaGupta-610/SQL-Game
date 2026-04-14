@@ -60,6 +60,32 @@ function runQuery(sql) {
   });
 }
 
+function normalizeSqlStatements(sql) {
+  return sql
+    .split(";")
+    .map((statement) => statement.trim())
+    .filter((statement) => {
+      if (!statement) {
+        return false;
+      }
+
+      const upper = statement.toUpperCase();
+      if (upper.startsWith("--") || upper.startsWith("/*")) {
+        return false;
+      }
+
+      return !upper.startsWith("CREATE DATABASE") && !upper.startsWith("USE ");
+    });
+}
+
+async function runStatements(sql) {
+  const statements = normalizeSqlStatements(sql);
+
+  for (const statement of statements) {
+    await runQuery(statement);
+  }
+}
+
 app.get("/suspects", async (req, res) => {
   try {
     const rows = await runQuery("SELECT * FROM suspects ORDER BY suspect_id");
@@ -146,14 +172,22 @@ app.post("/db/init", async (req, res) => {
     const schemaSql = fs.readFileSync(path.join(__dirname, "schema.sql"), "utf8");
     const dataSql = fs.readFileSync(path.join(__dirname, "data.sql"), "utf8");
 
-    await runQuery(schemaSql);
-    await runQuery("SET FOREIGN_KEY_CHECKS=0; TRUNCATE TABLE evidence; TRUNCATE TABLE witnesses; TRUNCATE TABLE locations; TRUNCATE TABLE suspects; SET FOREIGN_KEY_CHECKS=1;");
-    await runQuery(dataSql);
+    await runQuery("SET FOREIGN_KEY_CHECKS=0");
+    await runQuery("DROP TABLE IF EXISTS evidence");
+    await runQuery("DROP TABLE IF EXISTS witnesses");
+    await runQuery("DROP TABLE IF EXISTS locations");
+    await runQuery("DROP TABLE IF EXISTS suspects");
+    await runQuery("SET FOREIGN_KEY_CHECKS=1");
+
+    await runStatements(schemaSql);
+    await runStatements(dataSql);
 
     res.json({ message: "Database initialized from schema.sql and data.sql" });
   } catch (error) {
     console.error("/db/init failed:", error);
-    res.status(500).json({ error: error.message });
+    res.status(500).json({
+      error: error.message || error.code || error.sqlMessage || "Database initialization failed"
+    });
   }
 });
 
