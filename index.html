@@ -1,0 +1,202 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<title>SQL Detective Game</title>
+	<link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Ctext y='.9em' font-size='90'%3E🕵️%3C/text%3E%3C/svg%3E">
+
+	<link rel="preconnect" href="https://fonts.googleapis.com">
+	<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+	<link href="https://fonts.googleapis.com/css2?family=Chakra+Petch:wght@400;500;600;700&family=Orbitron:wght@600;700;800&family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@24,500,0,0" rel="stylesheet">
+
+	<link rel="stylesheet" href="style.css">
+</head>
+<body>
+	<div class="ambient ambient-1"></div>
+	<div class="ambient ambient-2"></div>
+
+	<main class="container">
+		<header class="topbar">
+			<div class="title-wrap">
+				<span class="material-symbols-outlined icon badge">local_police</span>
+				<div>
+					<h1>SQL Detective</h1>
+					<p class="subtitle">Case File: Diamond Theft</p>
+				</div>
+			</div>
+
+			<div class="stats">
+				<div class="stat">
+					<span class="material-symbols-outlined">timer</span>
+					<p>Time Left</p>
+					<strong id="timer">05:00</strong>
+				</div>
+				<div class="stat">
+					<span class="material-symbols-outlined">favorite</span>
+					<p>Attempts Left</p>
+					<strong id="attempts">3</strong>
+				</div>
+			</div>
+		</header>
+
+		<div class="progress-wrap">
+			<div class="progress-label">
+				<span class="material-symbols-outlined">conversion_path</span>
+				<span id="progressText">Stage 0 of 4</span>
+			</div>
+			<div class="progress-track">
+				<div id="progressBar" class="progress-bar"></div>
+			</div>
+		</div>
+
+		<section id="storyScreen" class="screen">
+			<div class="hero">
+				<div class="hero-copy">
+					<h2>Story: The Night Of The Theft</h2>
+					<p id="storyNarration">There is a jewelry shop, and Mr. Mehra is the owner. He is sad because last night someone stole his jewelry.</p>
+					<p class="story-extra">Now the market is full of rumors, and everyone is under suspicion. You need to inspect clues, question suspects, and catch the thief before time runs out.</p>
+					<div class="mehra-box">
+						<img src="Assets/mehra.png" alt="Mr. Mehra">
+						<p><strong>Mr. Mehra:</strong> "Please help me find who stole the diamond before time runs out."</p>
+					</div>
+					<button class="primary" onclick="goToGuide()">
+						<span class="material-symbols-outlined">play_arrow</span>
+						Continue
+					</button>
+				</div>
+				<div class="hero-card">
+					<img src="Assets/FirstPage.jpg" alt="Case preview board">
+					<div>
+						<p class="chip">CASE INTRO</p>
+						<p>This is a 6-character story including Mr. Mehra and 5 suspects, out of which one is the thief.</p>
+					</div>
+				</div>
+			</div>
+		</section>
+
+		<section id="guideScreen" class="screen hidden">
+			<div class="screen-head">
+				<h2>
+					<span class="material-symbols-outlined">menu_book</span>
+					Game Rules & How To Play
+				</h2>
+				<p>Please read the rules and check all agreement boxes before starting the game.</p>
+			</div>
+			<div class="rules-grid">
+				<div class="rule-card">
+					<h3>Rules</h3>
+					<ul>
+						<li>You have only 5 minutes total.</li>
+						<li>You have only 3 final guesses.</li>
+						<li>Find the thief before attempts or time ends.</li>
+					</ul>
+					<div class="checklist">
+						<label><input class="rule-check" type="checkbox"> I understand the 5-minute timer.</label>
+						<label><input class="rule-check" type="checkbox"> I understand I only have 3 guesses.</label>
+						<label><input class="rule-check" type="checkbox"> I understand game ends on timeout.</label>
+					</div>
+				</div>
+				<div class="rule-card">
+					<h3>Stages</h3>
+					<ul>
+						<li>Stage 1 (Suspects): You will be given 6 character cards. Use Interrogate to reveal details like jacket color, fingerprint match, and late entry info.</li>
+						<li>Stage 2 (Clues): You will be given clue cards from witnesses and evidence. Analyze every clue to understand who matches all conditions.</li>
+						<li>Stage 3 (Guess): You need to choose one suspect as your culprit guess. You have only 3 total attempts, so each guess matters.</li>
+						<li>Stage 4 (Result): The game shows whether your guess is correct. You win if you catch the thief within 5 minutes and within 3 attempts.</li>
+					</ul>
+				</div>
+			</div>
+			<div class="action-row">
+				<button class="ghost" onclick="goToStory()">
+					<span class="material-symbols-outlined">arrow_back</span>
+					Back
+				</button>
+				<button id="startBtn" class="primary" onclick="startGame()" disabled>
+					<span class="material-symbols-outlined">sports_esports</span>
+					Start Game (Unlock By Checking Rules)
+				</button>
+			</div>
+		</section>
+
+		<section id="stage1Screen" class="screen hidden">
+			<div class="screen-head">
+				<h2>
+					<span class="material-symbols-outlined">group</span>
+					Stage 1: Interrogate Suspects
+				</h2>
+				<p>Click Interrogate on each suspect to reveal their hidden info in simple words.</p>
+			</div>
+
+			<div id="statusMessage" class="status-message">Stage 1 active. Gather suspect details first.</div>
+
+			<div id="suspectsContainer" class="suspects-grid"></div>
+
+			<div class="action-row">
+				<button class="primary" onclick="goStage2()">
+					<span class="material-symbols-outlined">arrow_forward</span>
+					Go To Stage 2
+				</button>
+			</div>
+		</section>
+
+		<section id="stage2Screen" class="screen hidden">
+			<div class="screen-head">
+				<h2>
+					<span class="material-symbols-outlined">search</span>
+					Stage 2: Analyze Clues
+				</h2>
+				<p>Review each clue card to understand what to look for before final guessing.</p>
+			</div>
+
+			<div id="clueContainer" class="clue-grid"></div>
+
+			<div class="action-row">
+				<button class="ghost" onclick="goStage1()">
+					<span class="material-symbols-outlined">arrow_back</span>
+					Back To Stage 1
+				</button>
+				<button class="primary" onclick="goStage3()">
+					<span class="material-symbols-outlined">arrow_forward</span>
+					Go To Stage 3
+				</button>
+			</div>
+		</section>
+
+		<section id="stage3Screen" class="screen hidden">
+			<div class="screen-head">
+				<h2>
+					<span class="material-symbols-outlined">target</span>
+					Stage 3: Guess The Culprit
+				</h2>
+				<p>Click one suspect card to make a guess. You have only 3 attempts total.</p>
+			</div>
+
+			<div id="guessMessage" class="status-message">Make your best guess carefully.</div>
+
+			<div id="accuseContainer" class="suspects-grid"></div>
+
+			<div class="action-row">
+				<button class="ghost" onclick="goStage2()">
+					<span class="material-symbols-outlined">arrow_back</span>
+					Back To Stage 2
+				</button>
+			</div>
+		</section>
+
+		<section id="stage4Screen" class="screen hidden">
+			<div class="result-box">
+				<img id="resultImage" src="Assets/vikram.png" alt="Accused suspect">
+				<h2 id="resultText">Result</h2>
+				<p id="resultMeta"></p>
+				<button class="primary" onclick="restartGame()">
+					<span class="material-symbols-outlined">restart_alt</span>
+					Restart Case
+				</button>
+			</div>
+		</section>
+	</main>
+
+	<script src="script.js"></script>
+</body>
+</html>

@@ -1,0 +1,26 @@
+CASE: Diamond Necklace Theft
+
+Location: City Mall  
+Time: 8:00 PM  
+
+DESCRIPTION:
+A diamond necklace was stolen from a jewelry shop in the mall.
+
+SUSPECTS:
+1. Raj – Security Guard – Was at entrance  
+2. Priya – Shop Owner – Closing shop  
+3. Aman – Customer – Browsing items  
+4. Neha – Cleaner – Cleaning after hours  
+5. Vikram – Delivery Boy – Delivered package at 7:45 PM  
+
+CLUES:
+- A person wearing a red jacket was seen near the shop  
+- Fingerprint found on glass display  
+- Someone entered after closing time  
+- Argument heard before theft  
+
+FAKE CLUE:
+- Delivery boy looked suspicious  
+
+CULPRIT:
+Aman
