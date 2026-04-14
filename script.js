@@ -203,7 +203,7 @@ async function loadGameData() {
         text: `${witnessSceneText}`
       },
       {
-        id: "q_scene",
+        id: "q_scene_context",
         icon: "location_on",
         title: "Crime Scene Context",
         text: `Primary scene: Jewelry Shop. Suspects seen there: ${sceneNames}`
@@ -445,6 +445,15 @@ function goStage3() {
   if (analyzedClues.size < clues.length) {
     showScreen("stage2Screen");
     setProgress(2);
+    const remaining = clues.length - analyzedClues.size;
+    const clueContainer = document.getElementById("clueContainer");
+    if (clueContainer) {
+      clueContainer.scrollIntoView({ behavior: "smooth", block: "start" });
+    }
+    const stage2Title = document.querySelector("#stage2Screen .screen-head p");
+    if (stage2Title) {
+      stage2Title.textContent = `Analyze all clues first. ${remaining} clue(s) still need review before Stage 3 opens.`;
+    }
     return;
   }
 
