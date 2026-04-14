@@ -42,35 +42,4 @@ To simulate a real-world investigation using SQL by linking multiple tables and 
 
 ---
 
-## ▶️ How to Run
-1. Run `schema.sql` in MySQL Workbench
-2. Run `data.sql`
-3. Run `queries.sql`
-4. Analyze outputs to find the culprit
 
----
-
-## 🧪 Sample Result
-The investigation identifies the culprit based on:
-- Evidence linkage
-- Witness statements
-- Suspicion score
-
-👉 **Final Culprit: Aman**
-
----
-
-## 🛠️ Tech Stack
-- MySQL
-- SQL
-- VS Code
-
----
-
-## 🚀 Future Improvements
-- Add frontend UI
-- Convert into web-based game
-- Add multiple cases
-- Add scoring system
-
----
