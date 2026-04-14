@@ -49,7 +49,10 @@ function loadNamedQueries() {
   blocks.forEach((block) => {
     const newlineIdx = block.indexOf("\n");
     const name = block.slice(0, newlineIdx).trim();
-    const sql = block.slice(newlineIdx + 1).trim().replace(/;\s*$/, "");
+    const rawSql = block.slice(newlineIdx + 1);
+    const manualSectionIndex = rawSql.search(/\n\s*--\s*=+/);
+    const queryOnly = manualSectionIndex >= 0 ? rawSql.slice(0, manualSectionIndex) : rawSql;
+    const sql = queryOnly.trim().replace(/;\s*$/, "");
     named[name] = sql;
   });
 
