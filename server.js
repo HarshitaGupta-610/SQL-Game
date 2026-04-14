@@ -61,6 +61,13 @@ function loadNamedQueries() {
 
 const namedQueries = loadNamedQueries();
 
+function normalizeRows(rows) {
+  if (Array.isArray(rows) && Array.isArray(rows[0])) {
+    return rows[0];
+  }
+  return rows;
+}
+
 function runQuery(sql) {
   return new Promise((resolve, reject) => {
     db.query(sql, (err, rows) => {
@@ -181,15 +188,15 @@ app.get("/game/bootstrap", async (req, res) => {
     ]);
 
     res.json({
-      suspects,
-      clues,
+      suspects: normalizeRows(suspects),
+      clues: normalizeRows(clues),
       culpritName: culpritRows?.[0]?.name || "",
       investigation: {
-        sceneSuspects,
-        redClothing,
-        fingerprintMatches,
-        witnessScene,
-        evidenceMatches
+        sceneSuspects: normalizeRows(sceneSuspects),
+        redClothing: normalizeRows(redClothing),
+        fingerprintMatches: normalizeRows(fingerprintMatches),
+        witnessScene: normalizeRows(witnessScene),
+        evidenceMatches: normalizeRows(evidenceMatches)
       }
     });
   } catch (error) {
