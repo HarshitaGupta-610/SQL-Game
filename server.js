@@ -9,12 +9,22 @@ app.use(cors());
 app.use(express.json());
 app.use(express.static(__dirname));
 
+function envValue(...keys) {
+  for (const key of keys) {
+    const value = process.env[key];
+    if (typeof value === "string" && value.trim() !== "") {
+      return value.trim();
+    }
+  }
+  return "";
+}
+
 const db = mysql.createPool({
-  host: process.env.DB_HOST || "localhost",
-  user: process.env.DB_USER || "root",
-  password: process.env.DB_PASSWORD || "CodePaglu18@@",
-  database: process.env.DB_NAME || "detective_game",
-  port: Number(process.env.DB_PORT || 3306),
+  host: envValue("DB_HOST", "MYSQLHOST") || "localhost",
+  user: envValue("DB_USER", "MYSQLUSER") || "root",
+  password: envValue("DB_PASSWORD", "MYSQLPASSWORD") || "CodePaglu18@@",
+  database: envValue("DB_NAME", "MYSQLDATABASE") || "detective_game",
+  port: Number(envValue("DB_PORT", "MYSQLPORT") || 3306),
   waitForConnections: true,
   connectionLimit: 10,
   multipleStatements: true
