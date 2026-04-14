@@ -9,21 +9,25 @@ app.use(cors());
 app.use(express.json());
 app.use(express.static(__dirname));
 
-const db = mysql.createConnection({
+const db = mysql.createPool({
   host: process.env.DB_HOST || "localhost",
   user: process.env.DB_USER || "root",
   password: process.env.DB_PASSWORD || "CodePaglu18@@",
   database: process.env.DB_NAME || "detective_game",
   port: Number(process.env.DB_PORT || 3306),
+  waitForConnections: true,
+  connectionLimit: 10,
   multipleStatements: true
 });
 
-db.connect((err) => {
+db.getConnection((err, connection) => {
   if (err) {
     console.error("DB Connection Failed:", err);
-  } else {
-    console.log("Connected to MySQL ✅");
+    return;
   }
+
+  connection.release();
+  console.log("Connected to MySQL ✅");
 });
 
 function loadNamedQueries() {
@@ -61,6 +65,7 @@ app.get("/suspects", async (req, res) => {
     const rows = await runQuery("SELECT * FROM suspects ORDER BY suspect_id");
     res.json(rows);
   } catch (error) {
+    console.error("/suspects failed:", error);
     res.status(500).json({ error: error.message });
   }
 });
@@ -70,6 +75,7 @@ app.get("/evidence", async (req, res) => {
     const rows = await runQuery("SELECT * FROM evidence ORDER BY evidence_id");
     res.json(rows);
   } catch (error) {
+    console.error("/evidence failed:", error);
     res.status(500).json({ error: error.message });
   }
 });
@@ -79,6 +85,7 @@ app.get("/witnesses", async (req, res) => {
     const rows = await runQuery("SELECT * FROM witnesses ORDER BY witness_id");
     res.json(rows);
   } catch (error) {
+    console.error("/witnesses failed:", error);
     res.status(500).json({ error: error.message });
   }
 });
@@ -88,6 +95,7 @@ app.get("/solve", async (req, res) => {
     const rows = await runQuery(namedQueries.game_culprit);
     res.json(rows);
   } catch (error) {
+    console.error("/solve failed:", error);
     res.status(500).json({ error: error.message });
   }
 });
@@ -127,6 +135,7 @@ app.get("/game/bootstrap", async (req, res) => {
       }
     });
   } catch (error) {
+    console.error("/game/bootstrap failed:", error);
     res.status(500).json({ error: error.message });
   }
 });
@@ -143,6 +152,7 @@ app.post("/db/init", async (req, res) => {
 
     res.json({ message: "Database initialized from schema.sql and data.sql" });
   } catch (error) {
+    console.error("/db/init failed:", error);
     res.status(500).json({ error: error.message });
   }
 });
